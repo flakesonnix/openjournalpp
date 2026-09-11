@@ -5,51 +5,55 @@
 namespace openjournal {
 
 TEST(IngestionTest, ConstructorStoresData) {
-    const std::int64_t id = 42;
-    const time_t time = 1000;
-    const std::optional<time_t> endTime = 2000;
-    const time_t creationDate = 3000;
-    const double dose = 500.0;
-    const bool doseEstimated = true;
-    const std::optional<double> estimatedDoseStandardDeviation = 25.0;
-    const std::optional<std::int64_t> experienceId = 123;
-    const std::optional<int> stomachFullness = 2;
+    constexpr std::int64_t id = 42;
+    constexpr std::int64_t substanceId = 7;
+    constexpr time_t time = 1000;
+    constexpr std::optional<time_t> endTime = 2000;
+    constexpr time_t creationDate = 3000;
+    const std::string administrationRoute = "nasal";
+    constexpr double dose = 500.0;
+    constexpr bool doseEstimated = true;
+    constexpr std::optional<double> estimatedDoseStandardDeviation = 25.0;
+    const std::string units = "mg";
+    constexpr std::optional<std::int64_t> experienceId = 123;
+    const std::string notes = "Test ingestion";
+    constexpr std::optional<int> stomachFullness = 2;
     const std::optional<std::string> consumerName = "Lucy";
-    const std::optional<std::int64_t> customUnitId = 456;
+    constexpr std::optional<std::int64_t> customUnitId = 456;
 
     Ingestion ingestion(
         id,
-        "Ketamine",
+        substanceId,
         time,
         endTime,
         creationDate,
-        "nasal",
+        administrationRoute,
         dose,
         doseEstimated,
         estimatedDoseStandardDeviation,
-        "mg",
+        units,
         experienceId,
-        "Test ingestion",
+        notes,
         stomachFullness,
         consumerName,
         customUnitId
     );
 
     EXPECT_EQ(ingestion.getId(), id);
-    EXPECT_EQ(ingestion.getSubstanceName(), "Ketamine");
+    EXPECT_EQ(ingestion.getSubstanceId(), substanceId);
     EXPECT_EQ(ingestion.getTime(), time);
     EXPECT_EQ(ingestion.getEndTime(), endTime);
     EXPECT_EQ(ingestion.getCreationDate(), creationDate);
-    EXPECT_EQ(ingestion.getAdministrationRoute(), "nasal");
+    EXPECT_EQ(ingestion.getAdministrationRoute(), administrationRoute);
     EXPECT_DOUBLE_EQ(ingestion.getDose(), dose);
     EXPECT_EQ(ingestion.isDoseEstimated(), doseEstimated);
     EXPECT_EQ(
         ingestion.getEstimatedDoseStandardDeviation(),
         estimatedDoseStandardDeviation
     );
-    EXPECT_EQ(ingestion.getUnits(), "mg");
+    EXPECT_EQ(ingestion.getUnits(), units);
     EXPECT_EQ(ingestion.getExperienceId(), experienceId);
-    EXPECT_EQ(ingestion.getNotes(), "Test ingestion");
+    EXPECT_EQ(ingestion.getNotes(), notes);
     EXPECT_EQ(ingestion.getStomachFullness(), stomachFullness);
     EXPECT_EQ(ingestion.getConsumerName(), consumerName);
     EXPECT_EQ(ingestion.getCustomUnitId(), customUnitId);
@@ -58,7 +62,7 @@ TEST(IngestionTest, ConstructorStoresData) {
 TEST(IngestionTest, ConstructorUsesOptionalDefaults) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -66,9 +70,17 @@ TEST(IngestionTest, ConstructorUsesOptionalDefaults) {
         500.0
     );
 
+    EXPECT_EQ(ingestion.getId(), 42);
+    EXPECT_EQ(ingestion.getSubstanceId(), 7);
+    EXPECT_EQ(ingestion.getTime(), 1000);
     EXPECT_FALSE(ingestion.getEndTime().has_value());
+    EXPECT_EQ(ingestion.getCreationDate(), 2000);
+    EXPECT_EQ(ingestion.getAdministrationRoute(), "nasal");
+    EXPECT_DOUBLE_EQ(ingestion.getDose(), 500.0);
     EXPECT_FALSE(ingestion.isDoseEstimated());
-    EXPECT_FALSE(ingestion.getEstimatedDoseStandardDeviation().has_value());
+    EXPECT_FALSE(
+        ingestion.getEstimatedDoseStandardDeviation().has_value()
+    );
     EXPECT_TRUE(ingestion.getUnits().empty());
     EXPECT_FALSE(ingestion.getExperienceId().has_value());
     EXPECT_TRUE(ingestion.getNotes().empty());
@@ -78,52 +90,108 @@ TEST(IngestionTest, ConstructorUsesOptionalDefaults) {
 }
 
 TEST(IngestionTest, GetId) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     EXPECT_EQ(ingestion.getId(), 42);
 }
 
-TEST(IngestionTest, GetSubstanceName) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+TEST(IngestionTest, GetSubstanceId) {
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    EXPECT_EQ(ingestion.getSubstanceName(), "Ketamine");
+    EXPECT_EQ(ingestion.getSubstanceId(), 7);
 }
 
 TEST(IngestionTest, GetTime) {
-    Ingestion ingestion(42, "Ketamine", 1234, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    EXPECT_EQ(ingestion.getTime(), 1234);
+    EXPECT_EQ(ingestion.getTime(), 1000);
 }
 
 TEST(IngestionTest, GetEndTime) {
-    Ingestion ingestion(42, "Ketamine", 1000, 2345, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        2000,
+        3000,
+        "nasal",
+        500.0
+    );
 
     ASSERT_TRUE(ingestion.getEndTime().has_value());
-    EXPECT_EQ(ingestion.getEndTime().value(), 2345);
+    EXPECT_EQ(ingestion.getEndTime().value(), 2000);
 }
 
 TEST(IngestionTest, GetCreationDate) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 5678, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    EXPECT_EQ(ingestion.getCreationDate(), 5678);
+    EXPECT_EQ(ingestion.getCreationDate(), 2000);
 }
 
 TEST(IngestionTest, GetAdministrationRoute) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "intravenous", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    EXPECT_EQ(ingestion.getAdministrationRoute(), "intravenous");
+    EXPECT_EQ(ingestion.getAdministrationRoute(), "nasal");
 }
 
 TEST(IngestionTest, GetDose) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 125.5);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    EXPECT_DOUBLE_EQ(ingestion.getDose(), 125.5);
+    EXPECT_DOUBLE_EQ(ingestion.getDose(), 500.0);
 }
 
 TEST(IngestionTest, IsDoseEstimated) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -138,7 +206,7 @@ TEST(IngestionTest, IsDoseEstimated) {
 TEST(IngestionTest, GetEstimatedDoseStandardDeviation) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -148,14 +216,19 @@ TEST(IngestionTest, GetEstimatedDoseStandardDeviation) {
         25.0
     );
 
-    ASSERT_TRUE(ingestion.getEstimatedDoseStandardDeviation().has_value());
-    EXPECT_DOUBLE_EQ(ingestion.getEstimatedDoseStandardDeviation().value(), 25.0);
+    ASSERT_TRUE(
+        ingestion.getEstimatedDoseStandardDeviation().has_value()
+    );
+    EXPECT_DOUBLE_EQ(
+        ingestion.getEstimatedDoseStandardDeviation().value(),
+        25.0
+    );
 }
 
 TEST(IngestionTest, GetUnits) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -172,7 +245,7 @@ TEST(IngestionTest, GetUnits) {
 TEST(IngestionTest, GetExperienceId) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -191,7 +264,7 @@ TEST(IngestionTest, GetExperienceId) {
 TEST(IngestionTest, GetNotes) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -201,16 +274,16 @@ TEST(IngestionTest, GetNotes) {
         std::nullopt,
         "mg",
         std::nullopt,
-        "Notes"
+        "Test ingestion"
     );
 
-    EXPECT_EQ(ingestion.getNotes(), "Notes");
+    EXPECT_EQ(ingestion.getNotes(), "Test ingestion");
 }
 
 TEST(IngestionTest, GetStomachFullness) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -231,7 +304,7 @@ TEST(IngestionTest, GetStomachFullness) {
 TEST(IngestionTest, GetConsumerName) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -243,7 +316,7 @@ TEST(IngestionTest, GetConsumerName) {
         std::nullopt,
         {},
         std::nullopt,
-        std::string("Lucy")
+        "Lucy"
     );
 
     ASSERT_TRUE(ingestion.getConsumerName().has_value());
@@ -253,7 +326,7 @@ TEST(IngestionTest, GetConsumerName) {
 TEST(IngestionTest, GetCustomUnitId) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -273,24 +346,48 @@ TEST(IngestionTest, GetCustomUnitId) {
     EXPECT_EQ(ingestion.getCustomUnitId().value(), 456);
 }
 
-TEST(IngestionTest, SetSubstanceName) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+TEST(IngestionTest, SetSubstanceId) {
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    ingestion.setSubstanceName("MDMA");
+    ingestion.setSubstanceId(99);
 
-    EXPECT_EQ(ingestion.getSubstanceName(), "MDMA");
+    EXPECT_EQ(ingestion.getSubstanceId(), 99);
 }
 
 TEST(IngestionTest, SetTime) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    ingestion.setTime(3000);
+    ingestion.setTime(5000);
 
-    EXPECT_EQ(ingestion.getTime(), 3000);
+    EXPECT_EQ(ingestion.getTime(), 5000);
 }
 
 TEST(IngestionTest, SetEndTime) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setEndTime(3000);
 
@@ -299,7 +396,15 @@ TEST(IngestionTest, SetEndTime) {
 }
 
 TEST(IngestionTest, ClearEndTime) {
-    Ingestion ingestion(42, "Ketamine", 1000, 2000, 3000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        2000,
+        3000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setEndTime(std::nullopt);
 
@@ -307,7 +412,15 @@ TEST(IngestionTest, ClearEndTime) {
 }
 
 TEST(IngestionTest, SetAdministrationRoute) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setAdministrationRoute("oral");
 
@@ -315,7 +428,15 @@ TEST(IngestionTest, SetAdministrationRoute) {
 }
 
 TEST(IngestionTest, SetDose) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setDose(750.0);
 
@@ -323,7 +444,15 @@ TEST(IngestionTest, SetDose) {
 }
 
 TEST(IngestionTest, SetDoseEstimated) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setDoseEstimated(true);
 
@@ -331,34 +460,57 @@ TEST(IngestionTest, SetDoseEstimated) {
 }
 
 TEST(IngestionTest, SetEstimatedDoseStandardDeviation) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    ingestion.setEstimatedDoseStandardDeviation(25.0);
+    ingestion.setEstimatedDoseStandardDeviation(30.0);
 
-    ASSERT_TRUE(ingestion.getEstimatedDoseStandardDeviation().has_value());
-    EXPECT_DOUBLE_EQ(ingestion.getEstimatedDoseStandardDeviation().value(), 25.0);
+    ASSERT_TRUE(
+        ingestion.getEstimatedDoseStandardDeviation().has_value()
+    );
+    EXPECT_DOUBLE_EQ(
+        ingestion.getEstimatedDoseStandardDeviation().value(),
+        30.0
+    );
 }
 
 TEST(IngestionTest, ClearEstimatedDoseStandardDeviation) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
         "nasal",
         500.0,
-        false,
+        true,
         25.0
     );
 
     ingestion.setEstimatedDoseStandardDeviation(std::nullopt);
 
-    EXPECT_FALSE(ingestion.getEstimatedDoseStandardDeviation().has_value());
+    EXPECT_FALSE(
+        ingestion.getEstimatedDoseStandardDeviation().has_value()
+    );
 }
 
 TEST(IngestionTest, SetUnits) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setUnits("g");
 
@@ -366,7 +518,15 @@ TEST(IngestionTest, SetUnits) {
 }
 
 TEST(IngestionTest, SetExperienceId) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setExperienceId(123);
 
@@ -377,7 +537,7 @@ TEST(IngestionTest, SetExperienceId) {
 TEST(IngestionTest, ClearExperienceId) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -395,15 +555,31 @@ TEST(IngestionTest, ClearExperienceId) {
 }
 
 TEST(IngestionTest, SetNotes) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
-    ingestion.setNotes("New notes");
+    ingestion.setNotes("Changed notes");
 
-    EXPECT_EQ(ingestion.getNotes(), "New notes");
+    EXPECT_EQ(ingestion.getNotes(), "Changed notes");
 }
 
 TEST(IngestionTest, SetStomachFullness) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setStomachFullness(3);
 
@@ -414,7 +590,7 @@ TEST(IngestionTest, SetStomachFullness) {
 TEST(IngestionTest, ClearStomachFullness) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -422,7 +598,7 @@ TEST(IngestionTest, ClearStomachFullness) {
         500.0,
         false,
         std::nullopt,
-        "mg",
+        {},
         std::nullopt,
         {},
         2
@@ -434,7 +610,15 @@ TEST(IngestionTest, ClearStomachFullness) {
 }
 
 TEST(IngestionTest, SetConsumerName) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setConsumerName("Lucy");
 
@@ -445,7 +629,7 @@ TEST(IngestionTest, SetConsumerName) {
 TEST(IngestionTest, ClearConsumerName) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -453,7 +637,7 @@ TEST(IngestionTest, ClearConsumerName) {
         500.0,
         false,
         std::nullopt,
-        "mg",
+        {},
         std::nullopt,
         {},
         std::nullopt,
@@ -466,7 +650,15 @@ TEST(IngestionTest, ClearConsumerName) {
 }
 
 TEST(IngestionTest, SetCustomUnitId) {
-    Ingestion ingestion(42, "Ketamine", 1000, std::nullopt, 2000, "nasal", 500.0);
+    Ingestion ingestion(
+        42,
+        7,
+        1000,
+        std::nullopt,
+        2000,
+        "nasal",
+        500.0
+    );
 
     ingestion.setCustomUnitId(456);
 
@@ -477,7 +669,7 @@ TEST(IngestionTest, SetCustomUnitId) {
 TEST(IngestionTest, ClearCustomUnitId) {
     Ingestion ingestion(
         42,
-        "Ketamine",
+        7,
         1000,
         std::nullopt,
         2000,
@@ -485,7 +677,7 @@ TEST(IngestionTest, ClearCustomUnitId) {
         500.0,
         false,
         std::nullopt,
-        "mg",
+        {},
         std::nullopt,
         {},
         std::nullopt,
