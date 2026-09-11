@@ -11,6 +11,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(openjournal-tests
         journal/location_test.cpp
         journal/experience_test.cpp
+        journal/ingestion_test.cpp
 )
 
 target_link_libraries(openjournal-tests
